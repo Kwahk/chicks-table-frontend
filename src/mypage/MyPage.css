@@ -1,0 +1,102 @@
+.mypage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mypage-container {
+    position: relative; /* 수정 버튼 위치 고정 */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* 왼쪽 정렬 */
+    justify-content: flex-start;
+    padding: 60px; /* 상하좌우 여백 */
+    background-color: #fff;
+    border: 2px solid #E0E0E0;
+    border-radius: 10px;
+    width: 400px;
+    box-shadow: 0px 82px 40px 0px #64646414; /* 폼의 그림자 효과 */
+  }
+
+  .mypage-container h2 {
+    margin-top: 0;
+    font-size: 26px;
+    margin-bottom: 40px;
+    position: relative;
+  }
+  
+  .profile-section {
+    display: flex;
+    gap: 20px; /* 이미지와 텍스트 사이 간격 */
+  }
+
+  .profile-picture {
+    width: 120px;
+    height: 160px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #e7e7e7;
+    border-radius: 5px;
+  }
+  .profile-picture img {
+    max-width: 120px;
+    max-height: 160px;
+    min-width: 2rem;
+    min-height: 2rem;
+    border-radius: 6px;
+  }
+  
+  .disease-name {
+    margin-right: 6px;
+  }
+  
+  .profile-info {
+    display: flex;
+    flex-direction: column;
+    font-size: 18px;
+    gap: 3px; /* 아이디, 이메일, 닉네임 사이의 간격을 줄이기 */ 
+}
+  
+  .profile-info p {
+    margin: 0;
+    line-height: 2.2; /* 기본 텍스트 간격 설정 */
+    margin-left: 4px;
+  }
+
+  .profile-disease-list {
+    display: inline-block; /* 질병 목록을 Diseases: 옆에 세로로 배치 */
+  }
+  
+  .profile-disease-item {
+    display: block;
+    margin-top: 8px; /* 각 질병 간격 조정 */
+    line-height: 1.5; /* 각 줄 간의 간격 조정 */
+  }
+ 
+  .edit-button {
+    position: absolute;
+    top: 20px; /* 위쪽으로 더 밀기 */
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .saved-chat-button {
+    width: 100%; /* 부모 컨테이너에 맞게 너비 설정 */
+    padding: 20px 0;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    align-self: center; /* 가운데 정렬 */
+    margin-top: 30px;
+    font-size: 18px;
+  }
+  
+  .saved-chat-button:hover {
+    background-color: #e0e0e0;
+  }
+
+  

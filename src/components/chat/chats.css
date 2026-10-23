@@ -1,0 +1,61 @@
+.chat-list .chat-container{
+    display: flex;
+    width: 100%;
+    padding-bottom: 1.5rem;
+}
+.chat-list .chat-container.model {
+    justify-content: left;
+}
+.chat-list .chat-container.user {
+    justify-content: right;
+}
+
+.chat-list .bubble {
+    width: fit-content;
+    max-width: 75%;
+    word-break: break-all;
+    padding: 1rem 2rem;
+}
+.chat-list .bubble.model {
+    background: #c8d6d5;
+    border: 1px solid rgba(112, 124, 151, 0.2);
+    border-radius: 16px 16px 16px 0px;
+    color: black;
+    font-size: 1.20em;
+}
+.chat-list .bubble.user {
+    background: #21978B;
+    border: 1px solid rgba(112, 124, 151, 0.25);
+    border-radius: 16px 16px 0px 16px;
+    font-size: 1.20em;
+    color: #FFFFFF;
+}
+
+.chat-list .bubble.loading {
+    padding-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 8rem;
+}
+.chat-list .bubble.loading .spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #555555;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+}
+
+.chat-list .save-btn {
+    margin: 0.4rem;
+}
+.chat-list .save-btn img {
+    cursor: pointer;
+    width: 2rem;
+}

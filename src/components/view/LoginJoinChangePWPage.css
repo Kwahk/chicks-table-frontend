@@ -1,0 +1,108 @@
+/* 로그인 페이지의 컨테이너 스타일 */
+.container {
+  display: flex; /* 컨테이너 내부 요소들을 flex로 배치 */
+  justify-content: center; /* 컨테이너 내의 요소들을 가로 방향 중앙 정렬 */
+  align-items: center; /* 컨테이너 내의 요소들을 세로 방향 중앙 정렬 */
+  height: 90vh; /* 화면 전체 높이를 차지 */
+  background: rgba(255, 255, 255, 0.15); /* 반투명한 흰색 배경 */
+  backdrop-filter: blur(10px); /* 배경 흐림 효과 */
+  border: 2px solid rgba(255, 255, 255, 0.2); /* 반투명한 테두리 */
+  border-radius: 10px; /* 모서리 둥글게 */
+}
+
+/* 로그인 폼의 스타일 */
+.container form {
+  border: 2px solid #E0E0E0; /* 연한 회색 테두리 */
+  box-shadow: 0px 82px 40px 0px #64646414; /* 폼의 그림자 효과 */
+  border-radius: 10px; /* 모서리 둥글게 */
+  background: #ffffff; /* 흰색 배경 */
+  padding: 40px 60px; /* 상하좌우 여백 */
+}
+
+/* 폼의 제목 스타일 */
+.container h1 {
+  text-align: center; /* 텍스트 중앙 정렬 */
+  font-size: 30px; /* 글자 크기 설정 */
+  color: #1D1D1D; /* 검은색 텍스트 */
+  padding: 15px 20px; /* 제목의 여백 */
+}
+
+/* 입력 필드의 스타일 */
+.input-field {
+  width: 42vh; /* 입력 필드의 너비를 부모 요소의 100%로 설정 */
+  height: auto; /* 입력 필드 높이 */
+  border: 1px solid #E0E0E0; /* 연한 회색 테두리 */
+}
+
+
+/* 입력 필드의 라벨 스타일 */
+label {
+  display: block;
+  padding: 10px 16px 10px 16px;
+  font-size: 18px; /* 글자 크기 설정 */
+  color: #333; /* 검은색 텍스트 */
+  font-weight: bold;
+}
+
+
+/* 입력 필드 안의 input 태그 스타일 */
+.input-field input {
+  display: block;
+  padding: 0px 16px 10px 16px;
+  max-width: 100%;
+  outline: none; /* 포커스 시 외곽선 제거 */
+  border: none; /* 테두리 제거 */
+  color: #616161; /* 텍스트 색상 */
+  border-radius: 5px; /* 모서리 둥글게 */
+  font-size: 16px;
+}
+
+/* 입력 필드의 placeholder 텍스트 스타일 */
+.input-field input::placeholder {
+  color: #616161; /* 회색의 placeholder 텍스트 */
+}
+
+/* 비밀번호 재설정 링크 스타일 */
+.recall-forget a {
+  color: #fff; /* 흰색 텍스트 */
+  text-decoration: none; /* 밑줄 제거 */
+}
+
+/* 비밀번호 재설정 링크 hover 시 스타일 */
+.recall-forget a:hover {
+  text-decoration: underline; /* 마우스를 올릴 때 밑줄 추가 */
+}
+
+/* 로그인 버튼 스타일 */
+.container button {
+  margin-top: 20px;
+  width: 100%; /* 버튼 너비를 부모 요소의 100%로 설정 */
+  height: 50px; /* 버튼 높이 */
+  background: #21978B; /* 청록색 배경 */
+  border: none; /* 테두리 제거 */
+  outline: none; /* 외곽선 제거 */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 버튼 그림자 효과 */
+  cursor: pointer; /* 마우스를 올릴 때 포인터 커서 표시 */
+  font-size: 18px; /* 글자 크기 설정 */
+  color: #fff; /* 흰색 텍스트 */
+  font-weight: 500; /* 두꺼운 글자 */
+}
+
+/* 회원가입 링크의 컨테이너 스타일 */
+.container .in-link {
+  font-size: 14.5px; /* 글자 크기 설정 */
+  text-align: center; /* 텍스트 중앙 정렬 */
+  margin: 20px 0 15px; /* 상하 여백 설정 */
+}
+
+/* 회원가입 링크 스타일 */
+.in-link p a {
+  color: #21978B; /* 청록색 텍스트 */
+  text-decoration: none; /* 밑줄 제거 */
+  font-weight: 600; /* 약간 두꺼운 글자 */
+}
+
+/* 회원가입 링크 hover 시 스타일 */
+.in-link p a:hover {
+  text-decoration: underline; /* 마우스를 올릴 때 밑줄 추가 */
+}

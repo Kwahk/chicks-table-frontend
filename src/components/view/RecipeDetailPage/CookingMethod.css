@@ -1,0 +1,29 @@
+.cooking-method-container {
+  width: 120vh;
+  margin: 0px auto;
+}
+
+.method-title {
+  font-size: 24px;
+  font-weight: bold;
+  padding-bottom: 40px;
+}
+
+.cooking-step {
+  display: flex; /* flexbox를 사용하여 가로 정렬 */
+  align-items: top;
+  gap: 40px; /* 이미지와 텍스트 사이의 간격 */
+  margin-bottom: 32px;
+}
+
+.cooking-img {
+  max-width: 30vh;
+  min-height: 20vh;
+  border-radius: 8px;
+}
+
+.cooking-text {
+  flex-grow: 1; /* 텍스트가 더 길어질 경우 자동으로 너비를 조절 */
+  font-size: 20px;
+  padding-top: 6px;
+}

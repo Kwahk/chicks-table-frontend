@@ -1,0 +1,62 @@
+.intro-page {
+  background-color: #E7E7E7; /* 원하는 색상으로 변경 */
+  min-height: calc(100vh - 60px); /* 60px만큼 빼기 */
+  display: flex; /* flexbox 사용 */
+  align-items: center; /* 세로 가운데 정렬 */
+}
+
+.text-container {
+  padding-top: 6%;
+  margin-left: 10%;
+  flex: 1; /* 가용 공간을 모두 차지하도록 설정 */
+}
+
+.intro-image {
+  margin-right: 60px; /* 오른쪽으로 밀어주기 */
+  max-width: 50%; /* 이미지 최대 너비 설정 (필요에 따라 조정) */
+  height: auto; /* 비율에 맞게 높이 자동 조정 */
+}
+
+.main-title {
+  font-size: 58px;
+  margin-bottom: 32px;
+}
+
+.sub-title {
+  font-size: 20px;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.bold-green {
+  font-weight: bold;
+  color: #117945;
+}
+
+.line-break {
+  display: block; /* span 태그는 inline 요소이므로 block으로 변경 */
+  margin-bottom: 8px; /* 원하는 마진 값으로 조정 */
+}
+
+.start-btn {
+  margin-top: 30px;
+  padding: 10px 20px;
+  background-color: #61B4AB;
+  border: solid 2px #21978B;
+  color: #fff;
+  font-size: 18px;
+  border-radius: 50px;
+  cursor: pointer;
+}
+
+.start-btn:focus, .start-btn:hover {
+  margin-top: 30px;
+  padding: 10px 20px;
+  background-color: #FFFDC5;
+  border: solid 2px #21978B;
+  color: #21978B;
+  font-size: 18px;
+  border-radius: 50px;
+}
