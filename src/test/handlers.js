@@ -61,8 +61,9 @@ export const handlers = [
   http.get(RECIPE_URL, ({ params }) => {
     const keyword = decodeURIComponent(params.query).replace("RCP_NM=", "");
     requests.recipe.push(keyword);
+    // 실제 API처럼 검색어에 띄어쓰기가 있으면 결과를 주지 않는다
     const matched = recipeRows
-      .filter((row) => row.RCP_NM.includes(keyword))
+      .filter((row) => !keyword.includes(" ") && row.RCP_NM.includes(keyword))
       .slice(Number(params.start) - 1, Number(params.end));
     return recipeResponse(params.type, matched);
   }),
