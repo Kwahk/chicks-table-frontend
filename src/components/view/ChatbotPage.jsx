@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { SaveContext } from "@/common/saveContext";
 import ChatList from "@/components/chat/ChatList";
 import SaveModal from "@/components/chat/SaveModal";
@@ -43,6 +43,12 @@ function ChatbotPageInner() {
   const [chatInput, setChatInput] = useState("");
   const [onProgress, setOnProgress] = useState(false);
   const { showSaveModal } = useContext(SaveContext);
+  // 새 메시지가 오면 페이지 끝(입력창 아래)이 화면 아래에 오도록 스크롤한다
+  const pageRef = useRef(null);
+
+  useEffect(() => {
+    pageRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [chatList, onProgress]);
   const addChat = (role, text) => {
     setChatList((prevChatList) => [
       ...prevChatList,
@@ -123,7 +129,7 @@ function ChatbotPageInner() {
   }, []);
 
   return (
-    <div className="chatbot-page">
+    <div className="chatbot-page" ref={pageRef}>
       <div className="chatbot-container">
         <ChatList chatList={chatList} onProgress={onProgress} />
         <div className="chat-input-area">
