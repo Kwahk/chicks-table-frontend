@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import axios from "axios";
-import { getUserNickname, getUserSavedList } from "@/utils/user";
+import { getUserNickname } from "@/api/user";
+import { getScraps, deleteScrap } from "@/api/scrap";
 
 import "./SavedSidebar.css"; // 고유 이름을 사용한 CSS 추가
 import xImage from "@/assets/x.png";
@@ -17,7 +17,7 @@ const SavedSidebar = ({ setRecipeId, height }) => {
       setNickname(nickname);
     });
 
-    getUserSavedList()
+    getScraps()
       .then((savedList) => {
         setSavedRecipes(savedList);
         setError(""); // 에러가 없으면 에러 메시지를 빈 문자열로 설정
@@ -33,15 +33,9 @@ const SavedSidebar = ({ setRecipeId, height }) => {
     const isConfirmed = window.confirm(
       `"${recipeTitle}" 레시피를 삭제하시겠습니까?`,
     );
-    const BASE_URL = import.meta.env.VITE_API_URL;
     if (isConfirmed) {
       try {
-        const token = localStorage.getItem("access_token"); // 토큰 이름 통일
-        await axios.delete(`${BASE_URL}/scrap/${scrapId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await deleteScrap(scrapId);
 
         // 삭제 성공 후 UI 업데이트
         const updatedRecipes = savedRecipes.filter(
