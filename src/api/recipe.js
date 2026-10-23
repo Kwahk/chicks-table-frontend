@@ -49,15 +49,25 @@ const toRecipeDetail = (row) => ({
   }).filter((step) => step.text),
 });
 
+// 공공 API는 검색어에 띄어쓰기가 있으면 결과를 주지 않는다
+// 가장 긴 단어 하나로 요청하고, 나머지 단어는 받아온 결과에서 거른다
+const fetchRowsByName = async (text, count) => {
+  const words = text.trim().split(/\s+/);
+  const keyword = words.reduce((a, b) => (b.length > a.length ? b : a));
+  const res = await recipeApi.get(
+    `/1/${count}/RCP_NM=${encodeURIComponent(keyword)}`,
+  );
+  return getRows(res.data).filter((row) =>
+    words.every((word) => row.RCP_NM.includes(word)),
+  );
+};
+
 export const searchRecipes = (keyword) =>
-  recipeApi
-    .get(`/1/100/RCP_NM=${encodeURIComponent(keyword)}`)
-    .then((res) => getRows(res.data).map(toRecipeSummary));
+  fetchRowsByName(keyword, 100).then((rows) => rows.map(toRecipeSummary));
 
 // 이름 검색은 부분 일치라 비슷한 이름이 먼저 올 수 있어 정확히 같은 이름을 우선한다
 export const getRecipeDetail = (name) =>
-  recipeApi.get(`/1/20/RCP_NM=${encodeURIComponent(name)}`).then((res) => {
-    const rows = getRows(res.data);
+  fetchRowsByName(name, 100).then((rows) => {
     const row = rows.find((r) => r.RCP_NM === name) ?? rows[0];
     return row ? toRecipeDetail(row) : null;
   });

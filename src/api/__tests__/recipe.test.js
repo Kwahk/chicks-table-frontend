@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
 import { server } from "@/test/server";
+import { requests } from "@/test/handlers";
 import { getRecipeDetail, searchRecipes } from "@/api/recipe";
 
 describe("api/recipe", () => {
@@ -32,6 +33,20 @@ describe("api/recipe", () => {
       protein: "14",
       fat: "10",
     });
+  });
+
+  // 공공 API는 검색어에 띄어쓰기가 있으면 결과를 주지 않는다
+  it("이름에 띄어쓰기가 있어도 상세 조회할 수 있다", async () => {
+    const recipe = await getRecipeDetail("두부조림 정식");
+
+    expect(recipe.name).toBe("두부조림 정식");
+    expect(requests.recipe).toEqual(["두부조림"]); // 가장 긴 단어로만 요청
+  });
+
+  it("띄어쓰기가 있는 검색어는 모든 단어가 들어간 레시피만 돌려준다", async () => {
+    const recipes = await searchRecipes("두부 정식");
+
+    expect(recipes.map((recipe) => recipe.name)).toEqual(["두부조림 정식"]);
   });
 
   it("없는 레시피를 조회하면 null을 돌려준다", async () => {

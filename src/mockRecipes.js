@@ -104,7 +104,8 @@ export const mockRecipeAdapter = async (config) => {
   const [, start, end, query = ""] = config.url.split("/");
   const keyword = decodeURIComponent(query.replace("RCP_NM=", ""));
   const matched = rows
-    .filter((row) => row.RCP_NM.includes(keyword))
+    // 실제 API처럼 검색어에 띄어쓰기가 있으면 결과를 주지 않는다
+    .filter((row) => !keyword.includes(" ") && row.RCP_NM.includes(keyword))
     .slice(Number(start) - 1, Number(end));
 
   const data = {
