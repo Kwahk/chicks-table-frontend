@@ -5,7 +5,7 @@ import { useDeleteScrap, useScraps } from "@/hooks/scrap";
 import "./SavedSidebar.css"; // 고유 이름을 사용한 CSS 추가
 import xImage from "@/assets/x.png";
 
-const SavedSidebar = ({ setRecipeId, height }) => {
+const SavedSidebar = ({ setRecipeId }) => {
   const { data: user } = useUser();
   const nickname = user?.nickname ?? "";
   // 서버에서 레시피 목록 가져오기
@@ -34,7 +34,7 @@ const SavedSidebar = ({ setRecipeId, height }) => {
   };
 
   return (
-    <div className="scrap-modal-content" style={{ height: height }}>
+    <div className="scrap-modal-content">
       <h3>
         &quot;{nickname}&quot; 님의
         <br />
@@ -80,7 +80,6 @@ const SavedSidebar = ({ setRecipeId, height }) => {
 };
 SavedSidebar.propTypes = {
   setRecipeId: PropTypes.func,
-  height: PropTypes.number,
 };
 
 export default SavedSidebar;
