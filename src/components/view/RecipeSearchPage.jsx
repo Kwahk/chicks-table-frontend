@@ -1,54 +1,51 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import "./RecipeSearchPage.css";
 import SearchIcon from "../../assets/grey-search-icon.png";
-import { searchRecipes } from "@/api/recipe";
+import { useRecipeSearch } from "@/hooks/recipe";
+
+const RECIPES_PER_PAGE = 8; // 한 페이지에 보여줄 레시피 수
 
 const RecipeSearchPage = () => {
-  const [searchInput, setSearchInput] = useState("");
-  const [recipes, setRecipes] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [recipesPerPage] = useState(8); // 한 페이지에 보여줄 레시피 수
-  const [isTyping, setIsTyping] = useState(false); // 입력중 상태를 관리할 변수
+  // 검색어와 페이지는 URL(?q=두부&page=2)에 두어 뒤로 가기와 새로고침에도 유지한다
+  const [searchParams, setSearchParams] = useSearchParams();
+  const keyword = searchParams.get("q") ?? "";
+  const currentPage = Number(searchParams.get("page") ?? 1);
+
+  const [searchInput, setSearchInput] = useState(keyword);
   const navigate = useNavigate(); // useNavigate 추가
 
-  // API 호출 함수
-  const fetchRecipes = async () => {
-    try {
-      const recipesData = await searchRecipes(searchInput);
-      setRecipes(recipesData);
-      setIsTyping(false); // 검색 완료 시 입력 중 상태 해제
-    } catch (error) {
-      console.error("Error fetching recipes:", error);
-    }
-  };
+  const {
+    data: recipes = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useRecipeSearch(keyword);
 
-  // 검색어 입력 감지 및 API 호출
+  // 엔터키를 누르면 검색어를 URL에 반영하고 첫 페이지로 이동
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      setCurrentPage(1); // 새로운 검색 시 첫 페이지로 리셋
-      fetchRecipes(); // 엔터키를 누르면 API 호출
+      setSearchParams({ q: searchInput.trim() });
     }
   };
 
   const handleInputChange = (e) => {
     setSearchInput(e.target.value);
-    setIsTyping(true); // 입력 중 상태로 설정
   };
 
   // 현재 페이지에 해당하는 레시피 계산
-  const indexOfLastRecipe = currentPage * recipesPerPage;
-  const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
+  const indexOfLastRecipe = currentPage * RECIPES_PER_PAGE;
+  const indexOfFirstRecipe = indexOfLastRecipe - RECIPES_PER_PAGE;
   const currentRecipes = recipes.slice(indexOfFirstRecipe, indexOfLastRecipe);
 
   // 페이지 버튼 클릭 핸들러 (페이지 변경 함수)
   const paginate = (pageNumber) => {
-    setCurrentPage(pageNumber);
+    setSearchParams({ q: keyword, page: String(pageNumber) });
   };
 
   // 총 페이지 수 계산
   const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil(recipes.length / recipesPerPage); i++) {
+  for (let i = 1; i <= Math.ceil(recipes.length / RECIPES_PER_PAGE); i++) {
     pageNumbers.push(i);
   }
 
@@ -56,6 +53,44 @@ const RecipeSearchPage = () => {
   const handleRecipeClick = (recipe) => {
     // 레시피 이름을 URL에 포함하여 상세 페이지로 이동
     navigate(`/recipe/${encodeURIComponent(recipe.name)}`);
+  };
+
+  // 요청 상태에 따라 보여줄 내용을 정한다
+  const renderResults = () => {
+    if (!keyword)
+      return <div className="no-results">검색어를 입력해 주세요.</div>;
+    if (isLoading) return <div className="no-results">검색 중...</div>;
+    if (isError)
+      return (
+        <div className="no-results">
+          레시피를 불러오지 못했습니다.{" "}
+          <button onClick={() => refetch()}>다시 시도</button>
+        </div>
+      );
+    if (currentRecipes.length === 0)
+      return <div className="no-results">검색 결과가 없습니다.</div>;
+
+    return currentRecipes.map((recipe) => (
+      <div
+        key={recipe.id}
+        className="recipe-card"
+        onClick={() => handleRecipeClick(recipe)}
+      >
+        <div className="image-holder">
+          <img
+            src={recipe.thumbnail || SearchIcon}
+            alt="Recipe Img"
+            className="recipe-img"
+          />
+        </div>
+        <div className="recipe-info">
+          <div className="recipe-name">{recipe.name}</div>
+          <div className="recipe-category">
+            분류 &gt; <span className="category-bold">{recipe.category}</span>
+          </div>
+        </div>
+      </div>
+    ));
   };
 
   return (
@@ -94,36 +129,7 @@ const RecipeSearchPage = () => {
 
       {/* Recipe Cards */}
       <div className="recipe-card-wrapper">
-        <div className="recipe-card-container">
-          {isTyping && !recipes.length ? (
-            <div className="no-results">입력 중...</div> // 입력 중 상태 표시
-          ) : currentRecipes.length > 0 ? (
-            currentRecipes.map((recipe) => (
-              <div
-                key={recipe.id}
-                className="recipe-card"
-                onClick={() => handleRecipeClick(recipe)}
-              >
-                <div className="image-holder">
-                  <img
-                    src={recipe.thumbnail || SearchIcon}
-                    alt="Recipe Img"
-                    className="recipe-img"
-                  />
-                </div>
-                <div className="recipe-info">
-                  <div className="recipe-name">{recipe.name}</div>
-                  <div className="recipe-category">
-                    분류 &gt;{" "}
-                    <span className="category-bold">{recipe.category}</span>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="no-results">검색 결과가 없습니다.</div>
-          )}
-        </div>
+        <div className="recipe-card-container">{renderResults()}</div>
       </div>
 
       {/* Pagination Section */}
