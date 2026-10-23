@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import './HeaderComponent.css';
-import ChickLoge from '../../assets/chick_text.png';
-import SearchIcon from '../../assets/search-icon.png';
-import ChatbotIcon from '../../assets/chatbot-icon.png';
-import Dropdown from '../../assets/dropdown-icon.png';
+import "./HeaderComponent.css";
+import ChickLoge from "../../assets/chick_text.png";
+import SearchIcon from "../../assets/search-icon.png";
+import ChatbotIcon from "../../assets/chatbot-icon.png";
+import Dropdown from "../../assets/dropdown-icon.png";
 import { Link, useNavigate } from "react-router-dom";
-import axios from 'axios';
+import axios from "axios";
 
 const HeaderComponent = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -49,11 +49,15 @@ const HeaderComponent = () => {
 
   const fetchUserInfo = async (token) => {
     try {
-      const response = await axios.get(`/user/${localStorage.getItem("userId")}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const BASE_URL = import.meta.env.VITE_API_URL;
+      const response = await axios.get(
+        `${BASE_URL}/user/${localStorage.getItem("username")}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       const userInfo = response.data;
       //setProfilePath(userInfo.profilePath);
       setDropdownIcon(userInfo.profilePath || Dropdown);
@@ -72,7 +76,7 @@ const HeaderComponent = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
-    localStorage.removeItem("userId");
+    localStorage.removeItem("username");
     setIsLoggedIn(false);
     closeDropdown();
     navigate("/");
@@ -100,10 +104,14 @@ const HeaderComponent = () => {
     return (
       <ul className="dropdown-menu">
         <li className="dropdown-list">
-          <Link to="/login" onClick={closeDropdown}>로그인</Link>
+          <Link to="/login" onClick={closeDropdown}>
+            로그인
+          </Link>
         </li>
         <li className="dropdown-list">
-          <Link to="/join" onClick={closeDropdown}>회원가입</Link>
+          <Link to="/join" onClick={closeDropdown}>
+            회원가입
+          </Link>
         </li>
       </ul>
     );
@@ -113,13 +121,19 @@ const HeaderComponent = () => {
     return (
       <ul className="dropdown-menu">
         <li className="dropdown-list">
-          <Link to="/mypage" onClick={closeDropdown}>마이페이지</Link>
+          <Link to="/mypage" onClick={closeDropdown}>
+            마이페이지
+          </Link>
         </li>
         <li className="dropdown-list">
-          <Link to="/saved-recipes" onClick={closeDropdown}>저장된 레시피</Link>
+          <Link to="/saved-recipes" onClick={closeDropdown}>
+            저장된 레시피
+          </Link>
         </li>
         <li className="dropdown-list">
-          <Link to="/change-password" onClick={closeDropdown}>비밀번호 변경</Link>
+          <Link to="/change-password" onClick={closeDropdown}>
+            비밀번호 변경
+          </Link>
         </li>
         <li className="dropdown-list" onClick={handleLogout}>
           로그아웃
@@ -143,7 +157,11 @@ const HeaderComponent = () => {
           </li>
           <div className="vertical-bar"></div>
           <li className="header-item" onClick={handleChatbotClick}>
-            <img src={ChatbotIcon} alt="Chatbot Icon" className="chatbot-icon" />
+            <img
+              src={ChatbotIcon}
+              alt="Chatbot Icon"
+              className="chatbot-icon"
+            />
             나만의 영양사
           </li>
           <div className="vertical-bar"></div>
@@ -155,7 +173,9 @@ const HeaderComponent = () => {
 
       {isDropdownVisible && (
         <div className="dropdown-menu-container" ref={dropdownRef}>
-          {isLoggedIn ? renderLoggedInDropdownMenu() : renderLoggedOutDropdownMenu()}
+          {isLoggedIn
+            ? renderLoggedInDropdownMenu()
+            : renderLoggedOutDropdownMenu()}
         </div>
       )}
     </header>
