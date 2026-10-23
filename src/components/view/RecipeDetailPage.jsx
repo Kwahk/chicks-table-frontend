@@ -1,32 +1,22 @@
-import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import CookingMethod from "../view/RecipeDetailPage/CookingMethod";
 import "./RecipeDetailPage.css";
-import { getRecipeDetail } from "@/api/recipe";
+import { useRecipeDetail } from "@/hooks/recipe";
 
 const RecipeDetailPage = () => {
-  const { id } = useParams(); // URL에서 RCP_NM (레시피 이름)을 가져옴
-  const [recipe, setRecipe] = useState(null); // 선택된 레시피 정보를 저장할 상태
-  const [loading, setLoading] = useState(true); // 로딩 상태 추가
+  const { id } = useParams(); // URL에서 레시피 이름을 가져옴
+  const { data: recipe, isLoading, isError, refetch } = useRecipeDetail(id);
 
-  // API를 통해 레시피 상세 정보를 가져오는 함수
-  const fetchRecipeDetails = async () => {
-    try {
-      const recipeData = await getRecipeDetail(id); // 없으면 null
-      setRecipe(recipeData); // 상세 레시피 정보 상태에 저장
-      setLoading(false); // 로딩 완료
-    } catch (error) {
-      console.error("레시피 상세 정보를 불러오는데 실패했습니다.", error);
-      setLoading(false); // 에러 시에도 로딩 종료
-    }
-  };
+  // 요청 상태에 따라 보여줄 내용을 정한다
+  if (isLoading) return <p className="p-tag">로딩 중...</p>;
 
-  // 컴포넌트가 마운트될 때 API 호출
-  useEffect(() => {
-    fetchRecipeDetails();
-  }, [id]);
-
-  if (loading) return <p className="p-tag">로딩 중...</p>; // 로딩 중일 때 표시
+  if (isError)
+    return (
+      <p className="p-tag">
+        레시피를 불러오지 못했습니다.{" "}
+        <button onClick={() => refetch()}>다시 시도</button>
+      </p>
+    );
 
   if (!recipe) return <p className="p-tag">레시피를 찾을 수 없습니다.</p>;
 

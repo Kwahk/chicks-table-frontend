@@ -3,31 +3,30 @@ import { SaveContext } from "@/common/saveContext";
 
 import "./SaveModal.css";
 import cancel from "@/assets/images/cancel.svg";
-import { createScrap } from "@/api/scrap";
+import { useCreateScrap } from "@/hooks/scrap";
 
 export default function SaveModal() {
   const { setShowSaveModal, saveModalContent, setSaveModalContent } =
     useContext(SaveContext);
   const [titleInput, setTitleInput] = useState("");
   const [contentInput, setContentInput] = useState(saveModalContent);
+  const { mutate: saveScrap, isPending } = useCreateScrap();
   const handleSubmit = (e) => {
     e.preventDefault();
-    createScrap(titleInput.slice(0, 30), contentInput)
-      .then((res) => {
-        if (res.status >= 200 && res.status < 300) {
+    saveScrap(
+      { title: titleInput.slice(0, 30), contents: contentInput },
+      {
+        onSuccess: () => {
           alert("저장 성공!");
           setShowSaveModal(false);
-        } else {
+        },
+        onError: (err) => {
+          console.error(err);
           alert("저장에 실패했습니다.");
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        alert("저장에 실패했습니다.");
-      })
-      .finally(() => {
-        setSaveModalContent("");
-      });
+        },
+        onSettled: () => setSaveModalContent(""),
+      },
+    );
   };
 
   useEffect(() => {}, []);
@@ -61,8 +60,8 @@ export default function SaveModal() {
             ></textarea>
           </div>
           <div className="save-btn-container">
-            <button type="submit" className="save-btn">
-              저장
+            <button type="submit" className="save-btn" disabled={isPending}>
+              {isPending ? "저장 중..." : "저장"}
             </button>
           </div>
         </form>
