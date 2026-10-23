@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import DiseaseSelectModal from "../diseaseselectmodal/DiseaseSelectModal";
@@ -34,6 +34,7 @@ const InformationEditForm = ({ user }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(user.profilePath || "");
   const [file, setFile] = useState(null);
+  const fileInputRef = useRef(null); // 숨겨진 파일 선택 input
 
   const addDisease = (newDisease) => {
     setDiseases([...diseases, newDisease]);
@@ -53,7 +54,7 @@ const InformationEditForm = ({ user }) => {
   };
 
   const openFileSelector = () => {
-    document.getElementById("profileImageInput").click();
+    fileInputRef.current.click();
   };
 
   // 저장에 성공하면 캐시가 갱신되므로 마이페이지에 새 정보가 바로 보인다
@@ -88,7 +89,7 @@ const InformationEditForm = ({ user }) => {
           </button>
           <input
             type="file"
-            id="profileImageInput"
+            ref={fileInputRef}
             style={{ display: "none" }}
             accept="image/*"
             onChange={handleImageChange}
