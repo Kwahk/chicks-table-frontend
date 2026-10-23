@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "./RecipeSearchPage.css";
 import { useRecipeSearch } from "@/hooks/recipe";
@@ -8,6 +9,7 @@ import Pagination from "@/components/recipe/search/Pagination";
 import StatusMessage from "@/components/common/StatusMessage";
 
 const RECIPES_PER_PAGE = 8; // 한 페이지에 보여줄 레시피 수
+const EMPTY = []; // 데이터가 없을 때도 매번 새 배열을 만들지 않도록 고정된 빈 배열 사용
 
 const RecipeSearchPage = () => {
   // 검색어와 페이지는 URL(?q=두부&page=2)에 두어 뒤로 가기와 새로고침에도 유지한다
@@ -17,7 +19,7 @@ const RecipeSearchPage = () => {
   const navigate = useNavigate();
 
   const {
-    data: recipes = [],
+    data: recipes = EMPTY,
     isLoading,
     isError,
     refetch,
@@ -35,8 +37,11 @@ const RecipeSearchPage = () => {
     setSearchParams({ q: keyword, page: String(page) });
 
   // 레시피 이름을 URL에 포함하여 상세 페이지로 이동
-  const handleRecipeClick = (recipe) =>
-    navigate(`/recipe/${encodeURIComponent(recipe.name)}`);
+  // memo된 RecipeCard에 넘기므로 매 렌더마다 새 함수가 만들어지지 않게 한다
+  const handleRecipeClick = useCallback(
+    (recipe) => navigate(`/recipe/${encodeURIComponent(recipe.name)}`),
+    [navigate],
+  );
 
   // 요청 상태에 따라 보여줄 내용을 정한다
   const renderResults = () => {

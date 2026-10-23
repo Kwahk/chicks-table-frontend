@@ -23,4 +23,14 @@ describe("usePagination", () => {
 
     expect(result.current).toEqual({ pageItems: [], totalPages: 0 });
   });
+
+  // memo된 목록 컴포넌트가 다시 그려지지 않으려면 같은 배열 참조를 받아야 한다
+  it("입력이 그대로면 다시 렌더링되어도 같은 배열을 돌려준다 (useMemo)", () => {
+    const { result, rerender } = renderHook(() => usePagination(items, 1, 8));
+    const first = result.current.pageItems;
+
+    rerender();
+
+    expect(result.current.pageItems).toBe(first);
+  });
 });
