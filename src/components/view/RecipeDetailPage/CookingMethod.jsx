@@ -1,32 +1,8 @@
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import PropTypes from "prop-types";
 import "./CookingMethod.css";
-import { getRecipeDetail } from "@/api/recipe";
 
-const CookingMethod = () => {
-  const { id } = useParams(); // URL에서 RCP_NM (레시피 이름)을 가져옴
-  const [steps, setSteps] = useState([]); // 조리 과정 목록 ({ order, text, image })
-  const [loading, setLoading] = useState(true); // 로딩 상태 추가
-
-  // API를 통해 조리 방법 정보를 가져오는 함수
-  const fetchCookingMethod = async () => {
-    try {
-      const recipe = await getRecipeDetail(id);
-      setSteps(recipe ? recipe.steps : []); // 조리 과정을 상태로 설정
-      setLoading(false); // 로딩 완료
-    } catch (error) {
-      console.error("조리 방법 정보를 불러오는데 실패했습니다.", error);
-      setLoading(false); // 에러 시에도 로딩 종료
-    }
-  };
-
-  // 컴포넌트가 마운트될 때 API 호출
-  useEffect(() => {
-    fetchCookingMethod();
-  }, [id]);
-
-  if (loading) return <p>Loading...</p>; // 로딩 중일 때 표시
-
+// 조리 과정은 상위(RecipeDetailPage)에서 받아 온 데이터를 그대로 그린다
+const CookingMethod = ({ steps }) => {
   // 조리 방법과 이미지를 순서대로 출력
   const renderCookingSteps = () =>
     steps.map((step) => (
@@ -50,6 +26,15 @@ const CookingMethod = () => {
       <div className="cooking-steps">{renderCookingSteps()}</div>
     </div>
   );
+};
+CookingMethod.propTypes = {
+  steps: PropTypes.arrayOf(
+    PropTypes.shape({
+      order: PropTypes.number,
+      text: PropTypes.string,
+      image: PropTypes.string,
+    }),
+  ).isRequired,
 };
 
 export default CookingMethod;

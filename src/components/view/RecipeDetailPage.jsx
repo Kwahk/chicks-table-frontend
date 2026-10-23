@@ -48,7 +48,7 @@ const RecipeDetailPage = () => {
         </div>
       </div>
 
-      <CookingMethod />
+      <CookingMethod steps={recipe.steps} />
 
       {/* 영양 성분 테이블 추가 */}
       <div className="nutrition-container">

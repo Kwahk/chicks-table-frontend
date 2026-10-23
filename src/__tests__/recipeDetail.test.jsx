@@ -38,8 +38,7 @@ describe("레시피 상세", () => {
     ).toBeInTheDocument();
   });
 
-  // 알려진 문제: 상세 페이지와 조리 방법이 같은 API를 각각 호출함 (PR #4에서 수정)
-  it.fails("상세 페이지는 레시피 API를 한 번만 요청한다", async () => {
+  it("상세 페이지는 레시피 API를 한 번만 요청한다", async () => {
     openDetail("두부조림 정식");
 
     await screen.findByText("정식 1단계");
