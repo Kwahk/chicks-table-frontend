@@ -1,35 +1,36 @@
 .saved-details-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    overflow-y: auto;
-    font-size: 1.2rem;
+  height: calc(100vh - 60px); /* 화면 높이 - 헤더 높이 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-y: auto;
+  font-size: 1.2rem;
 }
 .saved-details-container::-webkit-scrollbar {
-    width: 15px;
-    background-color: #fff;
+  width: 15px;
+  background-color: #fff;
 }
 .saved-details-container::-webkit-scrollbar-thumb {
-    border-radius: 8px;
-    background-color: #ebebe1;
+  border-radius: 8px;
+  background-color: #ebebe1;
 }
 .saved-details-container::-webkit-scrollbar-thumb:hover {
-    border-radius: 8px;
-    background-color: #e4e4d7;
+  border-radius: 8px;
+  background-color: #e4e4d7;
 }
 .saved-details-container::-webkit-scrollbar-thumb:active {
-    border-radius: 8px;
-    background-color: #d1d1bf;
+  border-radius: 8px;
+  background-color: #d1d1bf;
 }
 
 .saved-details {
-    border: 1px solid rgba(200, 214, 213, 0.8);
-    border-radius: 5px;
-    box-sizing: border-box;
-    max-width: 75%;
-    height: fit-content;
-    word-break: break-all;
-    padding: 1rem 2rem;
-    margin: 2rem;
+  border: 1px solid rgba(200, 214, 213, 0.8);
+  border-radius: 5px;
+  box-sizing: border-box;
+  max-width: 75%;
+  height: fit-content;
+  word-break: break-all;
+  padding: 1rem 2rem;
+  margin: 2rem;
 }

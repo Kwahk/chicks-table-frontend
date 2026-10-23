@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import { loginAsTestUser, renderApp } from "@/test/renderApp";
 
@@ -36,5 +36,20 @@ describe("저장한 레시피", () => {
     await waitFor(() =>
       expect(screen.queryByText("두부를 굽습니다.")).not.toBeInTheDocument(),
     );
+  });
+
+  it("레시피를 여러 번 눌러도 window resize 리스너가 쌓이지 않는다", async () => {
+    const addListener = vi.spyOn(window, "addEventListener");
+    loginAsTestUser();
+    const { user } = renderApp("/saved-recipes");
+
+    await user.click(await screen.findByText("저장한 두부 요리"));
+    await user.click(screen.getByText("저장한 샐러드"));
+    await screen.findByText("채소를 씻습니다.");
+
+    const resizeListeners = addListener.mock.calls.filter(
+      ([type]) => type === "resize",
+    );
+    expect(resizeListeners).toHaveLength(0);
   });
 });
