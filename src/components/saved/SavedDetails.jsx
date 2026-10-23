@@ -1,18 +1,16 @@
-import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { getScrap } from "@/api/scrap";
+import { useScrap } from "@/hooks/scrap";
 import PropTypes from "prop-types";
 
 import "./SavedDetails.css";
 
 export default function SavedDetails({ recipeId }) {
-  const [contents, setContents] = useState("");
-  useEffect(() => {
-    if (recipeId)
-      getScrap(recipeId).then((res) => {
-        setContents(res.contents);
-      });
-  }, [recipeId]);
+  const { data: scrap, isLoading, isError } = useScrap(recipeId);
+  const contents = scrap?.contents;
+
+  if (isLoading) return <div className="saved-details">불러오는 중...</div>;
+  if (isError)
+    return <div className="saved-details">레시피를 불러오지 못했습니다.</div>;
   return (
     <div className="saved-details">
       {contents && (
