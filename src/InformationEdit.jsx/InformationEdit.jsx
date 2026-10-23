@@ -1,49 +1,39 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 import DiseaseSelectModal from "../diseaseselectmodal/DiseaseSelectModal";
 import "./InformationEdit.css";
 import pencilIcon from "../assets/pencil-icon.png";
 import plusIcon from "../assets/icons8-plus-128.png";
 import xImage from "../assets/x.png";
 import placeholder from "@/assets/images/person.svg";
-import { getUser, updateUser } from "@/api/user";
-import { authStorage } from "@/common/authStorage";
+import { useUpdateUser, useUser } from "@/hooks/user";
 
+// 사용자 정보를 불러온 뒤에 수정 폼을 그린다
 const InformationEdit = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [id, setId] = useState(""); // ID 상태 추가
-  const [email, setEmail] = useState(""); // Email 상태 추가
-  const [nickname, setNickname] = useState("");
-  const [diseases, setDiseases] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [file, setFile] = useState(null);
+  const { data: user, isLoading, isError } = useUser();
 
-  useEffect(() => {
-    if (location.state) {
-      const { id, email, nickname, diseases, image } = location.state;
-      setId(id);
-      setEmail(email);
-      setNickname(nickname);
-      setDiseases(diseases || []);
-      setSelectedImage(image || placeholder);
-    } else if (authStorage.isLoggedIn()) {
-      const fetchUserInfo = async () => {
-        try {
-          const user = await getUser();
-          setId(user.id); // ID 상태 업데이트
-          setEmail(user.email); // Email 상태 업데이트
-          setNickname(user.nickname);
-          setDiseases(user.diseases || []);
-          setSelectedImage(user.profilePath || "");
-        } catch (error) {
-          console.error("사용자 정보를 가져오는 데 실패했습니다.", error);
-        }
-      };
-      fetchUserInfo();
-    }
-  }, [location]);
+  if (isLoading)
+    return <p className="info-edit-container-custom">불러오는 중...</p>;
+  if (isError || !user)
+    return (
+      <p className="info-edit-container-custom">
+        사용자 정보를 불러오지 못했습니다.
+      </p>
+    );
+
+  return <InformationEditForm user={user} />;
+};
+
+// 불러온 사용자 정보를 폼의 초기값으로 사용한다 (useEffect로 state를 맞출 필요가 없음)
+const InformationEditForm = ({ user }) => {
+  const navigate = useNavigate();
+  const { mutate: saveUser, isPending } = useUpdateUser();
+  const [nickname, setNickname] = useState(user.nickname);
+  const [diseases, setDiseases] = useState(user.diseases || []);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(user.profilePath || "");
+  const [file, setFile] = useState(null);
 
   const addDisease = (newDisease) => {
     setDiseases([...diseases, newDisease]);
@@ -66,16 +56,15 @@ const InformationEdit = () => {
     document.getElementById("profileImageInput").click();
   };
 
-  const handleSave = async () => {
-    try {
-      await updateUser({ nickname, diseases, file });
-
-      navigate("/mypage", {
-        state: { nickname, diseases, image: selectedImage },
-      });
-    } catch (error) {
-      console.error("저장하는 데 실패했습니다.", error);
-    }
+  // 저장에 성공하면 캐시가 갱신되므로 마이페이지에 새 정보가 바로 보인다
+  const handleSave = () => {
+    saveUser(
+      { nickname, diseases, file },
+      {
+        onSuccess: () => navigate("/mypage"),
+        onError: (error) => console.error("저장하는 데 실패했습니다.", error),
+      },
+    );
   };
 
   return (
@@ -108,11 +97,12 @@ const InformationEdit = () => {
         <div className="input-section-custom">
           <div className="input-row-custom">
             <label>Id</label>
-            <input type="text" value={id} disabled /> {/* ID 입력 필드 복원 */}
+            <input type="text" value={user.id} disabled />{" "}
+            {/* ID 입력 필드 복원 */}
           </div>
           <div className="input-row-custom">
             <label>Email</label>
-            <input type="email" value={email} disabled />{" "}
+            <input type="email" value={user.email} disabled />{" "}
             {/* Email 입력 필드 복원 */}
           </div>
           <div className="input-row-custom">
@@ -161,8 +151,12 @@ const InformationEdit = () => {
         </div>
       </div>
 
-      <button className="save-button-custom" onClick={handleSave}>
-        저장
+      <button
+        className="save-button-custom"
+        onClick={handleSave}
+        disabled={isPending}
+      >
+        {isPending ? "저장 중..." : "저장"}
       </button>
 
       {isModalOpen && (
@@ -173,6 +167,16 @@ const InformationEdit = () => {
       )}
     </div>
   );
+};
+
+InformationEditForm.propTypes = {
+  user: PropTypes.shape({
+    id: PropTypes.string,
+    email: PropTypes.string,
+    nickname: PropTypes.string,
+    profilePath: PropTypes.string,
+    diseases: PropTypes.array,
+  }).isRequired,
 };
 
 export default InformationEdit;

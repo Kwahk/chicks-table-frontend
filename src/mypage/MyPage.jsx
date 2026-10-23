@@ -1,43 +1,31 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./MyPage.css";
 import pencilIcon from "../assets/pencil-icon.png";
 import listIcon from "../assets/list.png";
 import placeholder from "@/assets/images/person.svg";
-import { getUser } from "@/api/user";
-import { authStorage } from "@/common/authStorage";
+import { useUser } from "@/hooks/user";
 
 const MyPage = () => {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState({
-    id: "",
-    email: "",
-    nickname: "",
-    diseases: [],
-    image: "", // 기본 프로필 사진
-  });
+  const { data: user, isLoading, isError, refetch } = useUser();
 
-  useEffect(() => {
-    if (authStorage.isLoggedIn()) {
-      // API 호출을 통해 사용자 정보 가져오기
-      getUser()
-        .then((user) => {
-          // 사용자 데이터 설정
-          setUserData({
-            id: user.id,
-            email: user.email,
-            nickname: user.nickname,
-            image: user.profilePath || placeholder,
-            diseases: user.diseases || [], // diseases 배열 처리
-          });
-        })
-        .catch((error) => {
-          console.error("사용자 정보를 가져오는 데 실패했습니다.", error);
-        });
-    } else {
-      console.error("유효한 userId 또는 토큰이 없습니다.");
-    }
-  }, []);
+  // 요청 상태에 따라 보여줄 내용을 정한다
+  if (isLoading) return <p className="mypage">불러오는 중...</p>;
+  if (isError || !user)
+    return (
+      <p className="mypage">
+        사용자 정보를 불러오지 못했습니다.{" "}
+        <button onClick={() => refetch()}>다시 시도</button>
+      </p>
+    );
+
+  const userData = {
+    id: user.id,
+    email: user.email,
+    nickname: user.nickname,
+    image: user.profilePath || placeholder, // 기본 프로필 사진
+    diseases: user.diseases || [],
+  };
 
   return (
     <div className="mypage">

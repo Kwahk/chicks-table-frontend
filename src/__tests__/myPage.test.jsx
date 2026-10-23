@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { screen } from "@testing-library/react";
 import { loginAsTestUser, renderApp } from "@/test/renderApp";
+import { server } from "@/test/server";
 
 describe("마이페이지", () => {
   it("로그인한 사용자 정보가 보인다", async () => {
@@ -24,5 +25,17 @@ describe("마이페이지", () => {
 
     expect(await screen.findByText("새병아리")).toBeInTheDocument();
     expect(window.location.pathname).toBe("/mypage");
+  });
+
+  it("헤더와 마이페이지가 같은 사용자 정보를 쓰지만 요청은 한 번만 보낸다", async () => {
+    let userRequests = 0;
+    server.events.on("request:start", ({ request }) => {
+      if (new URL(request.url).pathname.startsWith("/user/")) userRequests += 1;
+    });
+    loginAsTestUser();
+    renderApp("/mypage");
+
+    await screen.findByText("chick@example.com");
+    expect(userRequests).toBe(1);
   });
 });

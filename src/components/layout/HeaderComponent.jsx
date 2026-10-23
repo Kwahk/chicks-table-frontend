@@ -6,27 +6,24 @@ import ChatbotIcon from "../../assets/chatbot-icon.png";
 import Dropdown from "../../assets/dropdown-icon.png";
 import { Link, useNavigate } from "react-router-dom";
 import { authStorage } from "@/common/authStorage";
-import { getUser } from "@/api/user";
+import { useQueryClient } from "@tanstack/react-query";
+import { useUser, userKeys } from "@/hooks/user";
 
 const HeaderComponent = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [dropdownIcon, setDropdownIcon] = useState(Dropdown);
+  const [isLoggedIn, setIsLoggedIn] = useState(authStorage.isLoggedIn());
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  // 로그인 상태일 때만 사용자 정보(프로필 사진)를 조회
+  const { data: user } = useUser({ enabled: isLoggedIn });
+  const dropdownIcon = (isLoggedIn && user?.profilePath) || Dropdown;
   const dropdownRef = useRef(null);
   // const [profilePath, setProfilePath] = useState(null); // state로 profilePath 관리
 
   // 컴포넌트가 마운트될 때와 localStorage 변경을 감지
   useEffect(() => {
     const checkLoginStatus = () => {
-      const loggedIn = authStorage.isLoggedIn();
-      setIsLoggedIn(loggedIn);
-
-      if (loggedIn) {
-        fetchUserInfo(); // 유저 정보 조회
-      } else {
-        setDropdownIcon(Dropdown);
-      }
+      setIsLoggedIn(authStorage.isLoggedIn());
     };
 
     // localStorage가 변경될 때마다 로그인 상태 갱신
@@ -48,16 +45,6 @@ const HeaderComponent = () => {
     };
   }, []);
 
-  const fetchUserInfo = async () => {
-    try {
-      const userInfo = await getUser();
-      //setProfilePath(userInfo.profilePath);
-      setDropdownIcon(userInfo.profilePath || Dropdown);
-    } catch (error) {
-      console.error("Error fetching user info:", error);
-    }
-  };
-
   const toggleDropdown = () => {
     setDropdownVisible(!isDropdownVisible);
   };
@@ -68,6 +55,7 @@ const HeaderComponent = () => {
 
   const handleLogout = () => {
     authStorage.clear();
+    queryClient.removeQueries({ queryKey: userKeys.all }); // 이전 사용자 정보 캐시 삭제
     setIsLoggedIn(false);
     closeDropdown();
     navigate("/");
