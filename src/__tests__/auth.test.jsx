@@ -5,10 +5,19 @@ import { loginAsTestUser, renderApp } from "@/test/renderApp";
 const openMenu = async (user) => user.click(screen.getByAltText("Dropdown"));
 
 describe("로그인 상태", () => {
-  it("로그인하지 않았으면 레시피 검색을 누를 때 로그인 페이지로 이동한다", async () => {
+  it("로그인하지 않아도 레시피 검색 페이지로 이동한다", async () => {
     const { user } = renderApp("/");
 
     await user.click(screen.getByText("레시피 검색"));
+
+    expect(window.alert).not.toHaveBeenCalled();
+    expect(window.location.pathname).toBe("/recipesearch");
+  });
+
+  it("로그인하지 않았으면 챗봇을 누를 때 로그인 페이지로 이동한다", async () => {
+    const { user } = renderApp("/");
+
+    await user.click(screen.getByText("나만의 영양사"));
 
     expect(window.alert).toHaveBeenCalledWith("로그인이 필요합니다.");
     expect(window.location.pathname).toBe("/login");
