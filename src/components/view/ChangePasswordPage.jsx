@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"; // useEffect를 사용하여 컴포넌트 마운트 시 토큰 확인
 import { useNavigate } from "react-router-dom"; // 사용자가 로그인하지 않은 경우 리다이렉트를 위해 사용
-import axios from "axios"; // HTTP 요청 처리용 axios 임포트
+import { changePassword } from "@/api/user";
+import { authStorage } from "@/common/authStorage";
 import "./LoginJoinChangePWPage.css"; // 스타일 시트 임포트
 
 // 비밀번호 변경 페이지 컴포넌트 정의
@@ -14,8 +15,7 @@ const ChangePasswordPage = () => {
 
   // 컴포넌트가 마운트될 때 토큰 확인
   useEffect(() => {
-    const token = localStorage.getItem("access_token"); // 로컬 스토리지에서 토큰 가져오기
-    if (!token) {
+    if (!authStorage.isLoggedIn()) {
       // 토큰이 없으면 로그인 페이지로 리다이렉트
       alert("로그인이 필요합니다.");
       navigate("/login");
@@ -25,14 +25,18 @@ const ChangePasswordPage = () => {
   // 양식이 제출될 때 호출되는 함수
   const handleSubmit = async (event) => {
     event.preventDefault(); // 페이지 새로고침 방지
-    const BASE_URL = import.meta.env.VITE_API_URL;
 
-    if(newPassword.includes(' ') || password.includes(' ') || email.includes(' ') || confirmNewPassword.includes(' ')){
-      setNewPassword(newPassword.replace(/\s+/g, ''));
-      setPassword(password.replace(/\s+/g, ''))
-      setEmail(email.replace(/\s+/g, ''))
-      setConfirmNewPassword(confirmNewPassword.replace(/\s+/g, ''))
-      alert('공백 문자는 입력할 수 없습니다.')
+    if (
+      newPassword.includes(" ") ||
+      password.includes(" ") ||
+      email.includes(" ") ||
+      confirmNewPassword.includes(" ")
+    ) {
+      setNewPassword(newPassword.replace(/\s+/g, ""));
+      setPassword(password.replace(/\s+/g, ""));
+      setEmail(email.replace(/\s+/g, ""));
+      setConfirmNewPassword(confirmNewPassword.replace(/\s+/g, ""));
+      alert("공백 문자는 입력할 수 없습니다.");
       return;
     }
 
@@ -43,17 +47,7 @@ const ChangePasswordPage = () => {
 
     try {
       // 서버에 비밀번호 변경 요청
-      const token = localStorage.getItem("access_token"); // 로컬 스토리지에서 토큰 가져오기
-      const id = localStorage.getItem("username"); // 로컬 스토리지에서 사용자 ID 가져오기
-
-      const res = await axios({
-        method: "PATCH",
-        url: `${BASE_URL}/user/password/${id}`, // 비밀번호 변경 API URL
-        headers: {
-          Authorization: `Bearer ${token}`, // 헤더에 토큰 추가
-        },
-        data: { email, password, newPassword }, // 서버로 보낼 새로운 비밀번호 데이터
-      });
+      const res = await changePassword({ email, password, newPassword });
 
       // 서버 응답이 성공적일 경우 처리
       if (res.status >= 200 && res.status < 300) {
@@ -129,7 +123,8 @@ const ChangePasswordPage = () => {
         {/* 메인 페이지 링크 */}
         <div className="in-link">
           <p>
-            다음에 변경하기 <a href="/">메인 페이지 가기</a> {/* 메인 페이지로 이동하는 링크 */}
+            다음에 변경하기 <a href="/">메인 페이지 가기</a>{" "}
+            {/* 메인 페이지로 이동하는 링크 */}
           </p>
         </div>
       </form>

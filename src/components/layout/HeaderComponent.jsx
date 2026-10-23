@@ -5,7 +5,8 @@ import SearchIcon from "../../assets/search-icon.png";
 import ChatbotIcon from "../../assets/chatbot-icon.png";
 import Dropdown from "../../assets/dropdown-icon.png";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { authStorage } from "@/common/authStorage";
+import { getUser } from "@/api/user";
 
 const HeaderComponent = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -18,11 +19,11 @@ const HeaderComponent = () => {
   // 컴포넌트가 마운트될 때와 localStorage 변경을 감지
   useEffect(() => {
     const checkLoginStatus = () => {
-      const token = localStorage.getItem("access_token");
-      setIsLoggedIn(!!token);
+      const loggedIn = authStorage.isLoggedIn();
+      setIsLoggedIn(loggedIn);
 
-      if (token) {
-        fetchUserInfo(token); // 유저 정보 조회
+      if (loggedIn) {
+        fetchUserInfo(); // 유저 정보 조회
       } else {
         setDropdownIcon(Dropdown);
       }
@@ -47,18 +48,9 @@ const HeaderComponent = () => {
     };
   }, []);
 
-  const fetchUserInfo = async (token) => {
+  const fetchUserInfo = async () => {
     try {
-      const BASE_URL = import.meta.env.VITE_API_URL;
-      const response = await axios.get(
-        `${BASE_URL}/user/${localStorage.getItem("username")}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      const userInfo = response.data;
+      const userInfo = await getUser();
       //setProfilePath(userInfo.profilePath);
       setDropdownIcon(userInfo.profilePath || Dropdown);
     } catch (error) {
@@ -75,8 +67,7 @@ const HeaderComponent = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("username");
+    authStorage.clear();
     setIsLoggedIn(false);
     closeDropdown();
     navigate("/");
