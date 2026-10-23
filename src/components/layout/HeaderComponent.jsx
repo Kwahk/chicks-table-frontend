@@ -5,13 +5,14 @@ import SearchIcon from "../../assets/search-icon.png";
 import ChatbotIcon from "../../assets/chatbot-icon.png";
 import Dropdown from "../../assets/dropdown-icon.png";
 import { Link, useNavigate } from "react-router-dom";
-import { authStorage } from "@/common/authStorage";
+import { useBoundStore } from "@/stores";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUser, userKeys } from "@/hooks/user";
 
 const HeaderComponent = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(authStorage.isLoggedIn());
+  const isLoggedIn = useBoundStore((state) => state.isLoggedIn);
+  const logout = useBoundStore((state) => state.logout);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   // 로그인 상태일 때만 사용자 정보(프로필 사진)를 조회
@@ -20,16 +21,8 @@ const HeaderComponent = () => {
   const dropdownRef = useRef(null);
   // const [profilePath, setProfilePath] = useState(null); // state로 profilePath 관리
 
-  // 컴포넌트가 마운트될 때와 localStorage 변경을 감지
+  // 로그인 상태는 스토어를 구독하므로 storage 이벤트로 감지할 필요가 없다
   useEffect(() => {
-    const checkLoginStatus = () => {
-      setIsLoggedIn(authStorage.isLoggedIn());
-    };
-
-    // localStorage가 변경될 때마다 로그인 상태 갱신
-    checkLoginStatus();
-    window.addEventListener("storage", checkLoginStatus);
-
     // 외부 클릭 이벤트 리스너 추가
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -40,7 +33,6 @@ const HeaderComponent = () => {
     document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      window.removeEventListener("storage", checkLoginStatus);
       document.removeEventListener("mousedown", handleClickOutside); // 정리
     };
   }, []);
@@ -54,9 +46,8 @@ const HeaderComponent = () => {
   };
 
   const handleLogout = () => {
-    authStorage.clear();
+    logout();
     queryClient.removeQueries({ queryKey: userKeys.all }); // 이전 사용자 정보 캐시 삭제
-    setIsLoggedIn(false);
     closeDropdown();
     navigate("/");
   };

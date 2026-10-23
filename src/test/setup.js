@@ -6,6 +6,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, vi } from "vitest";
 import { server } from "./server";
 import { resetDb } from "./data";
 import { resetRequests } from "./handlers";
+import { useBoundStore } from "@/stores";
 
 // jsdom의 Blob, FormData로 만든 multipart 요청(프로필 수정)은 MSW로 가로챌 때 응답이 오지 않는다
 // 테스트에서만 Node 기본 Blob, File, FormData와 fetch를 쓰도록 바꾼다
@@ -36,6 +37,8 @@ afterEach(() => {
   resetDb();
   resetRequests();
   localStorage.clear();
+  // 스토어는 앱 전체에서 하나라 테스트끼리 상태가 섞이지 않게 처음 상태로 되돌린다
+  useBoundStore.setState(useBoundStore.getInitialState(), true);
   vi.restoreAllMocks();
 });
 
