@@ -1,17 +1,11 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./IntroPage.css";
 import IntroImage from "../../assets/chatting.png";
-import { authStorage } from "@/common/authStorage";
+import { useBoundStore } from "@/stores";
 
 const Intro = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 관리하는 state
+  const isLoggedIn = useBoundStore((state) => state.isLoggedIn); // 전역 로그인 상태
   const navigate = useNavigate(); // navigate 훅을 사용하여 페이지 전환
-
-  // 컴포넌트가 마운트될 때 로컬 스토리지에서 토큰 확인
-  useEffect(() => {
-    setIsLoggedIn(authStorage.isLoggedIn()); // 토큰이 있으면 로그인 상태
-  }, []); // 빈 배열을 넣으면 컴포넌트가 처음 렌더링될 때만 실행
 
   // 시작 버튼 클릭 시 호출되는 함수
   const handleStartClick = () => {

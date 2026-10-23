@@ -3,6 +3,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import { delay, http, HttpResponse } from "msw";
 import { loginAsTestUser, renderApp } from "@/test/renderApp";
 import { server } from "@/test/server";
+import { API_URL } from "@/test/handlers";
 
 const sendMessage = async (user, text) => {
   await user.type(
@@ -77,5 +78,24 @@ describe("챗봇", () => {
       () => expect(screen.queryByText(/불러오는 중/)).not.toBeInTheDocument(),
       { timeout: 1500 },
     );
+  });
+
+  // 수정 전에는 대화가 시작되지 않아 메시지를 보내면 "console.err is not a function" 오류가 났다
+  it("질병 정보를 불러오지 못해도 대화할 수 있다", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {}); // 일부러 낸 오류 로그 숨김
+    server.use(
+      http.get(
+        `${API_URL}/user/:id`,
+        () => new HttpResponse(null, { status: 500 }),
+      ),
+    );
+    loginAsTestUser();
+    const { user } = renderApp("/chatbot");
+
+    await sendMessage(user, "두부 요리 추천해줘");
+
+    expect(
+      await screen.findByText("두부 샐러드를 추천합니다."),
+    ).toBeInTheDocument();
   });
 });

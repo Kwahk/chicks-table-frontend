@@ -1,150 +1,73 @@
-import { useContext, useEffect, useRef, useState } from "react";
-import { SaveContext } from "@/common/saveContext";
+import { useEffect, useRef, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
+import { useBoundStore } from "@/stores";
 import ChatList from "@/components/chat/ChatList";
 import SaveModal from "@/components/chat/SaveModal";
-import { PropTypes } from "prop-types";
 import { getUserDisease } from "@/api/user";
-import { startChat, getModelResponse } from "@/utils/chat";
 
 import arrowBtn from "@/assets/images/arrowButton.svg";
 import "./ChatbotPage.css";
 
-function ContextProvider({ children }) {
-  const [showSaveModal, setShowSaveModal] = useState(false);
-  const [saveModalContent, setSaveModalContent] = useState("");
-
-  return (
-    <SaveContext.Provider
-      value={{
-        showSaveModal,
-        setShowSaveModal,
-        saveModalContent,
-        setSaveModalContent,
-      }}
-    >
-      {children}
-    </SaveContext.Provider>
-  );
-}
-ContextProvider.propTypes = {
-  children: PropTypes.element,
-};
-
+// 대화 상태와 저장 모달 상태는 chat slice에서 관리한다 (기존 SaveContext Provider 제거)
 export default function ChatbotPage() {
-  return (
-    <ContextProvider>
-      <ChatbotPageInner />
-    </ContextProvider>
-  );
-}
-
-function ChatbotPageInner() {
-  const [chatList, setChatList] = useState([]);
+  const { chatList, isResponding, isSaveModalOpen, initChat, sendMessage } =
+    useBoundStore(
+      useShallow((state) => ({
+        chatList: state.chatList,
+        isResponding: state.isResponding,
+        isSaveModalOpen: state.saveModal.isOpen,
+        initChat: state.initChat,
+        sendMessage: state.sendMessage,
+      })),
+    );
+  // 입력 중인 메시지는 이 화면에서만 쓰므로 지역 상태로 둔다
   const [chatInput, setChatInput] = useState("");
-  const [onProgress, setOnProgress] = useState(false);
-  const { showSaveModal } = useContext(SaveContext);
   // 새 메시지가 오면 페이지 끝(입력창 아래)이 화면 아래에 오도록 스크롤한다
   const pageRef = useRef(null);
 
   useEffect(() => {
     pageRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [chatList, onProgress]);
-  const addChat = (role, text) => {
-    setChatList((prevChatList) => [
-      ...prevChatList,
-      { role, parts: [{ text }] },
-    ]);
-  };
-  const handleChange = (e) => {
-    setChatInput(e.target.value);
-  };
+  }, [chatList, isResponding]);
+
+  // 화면에 들어올 때 질병 정보 사용 여부를 묻고 새 대화를 시작한다
+  useEffect(() => {
+    const useDisease = confirm("나의 질병 정보를 불러오시겠습니까?");
+    if (!useDisease) {
+      initChat("");
+      return;
+    }
+    getUserDisease()
+      .then((disease) => initChat(disease))
+      .catch((err) => {
+        console.error(err);
+        initChat(""); // 질병 정보를 못 불러와도 대화는 시작한다
+      });
+  }, [initChat]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const userInput = chatInput.trim();
     setChatInput("");
-    if (userInput) {
-      setOnProgress(true);
-      addChat("user", userInput);
-      getModelResponse(userInput)
-        .then((res) => {
-          if (res) addChat("model", res);
-          setOnProgress(false);
-        })
-        .catch((err) => {
-          console.err(err);
-          setOnProgress(false);
-        });
-    }
+    if (userInput) sendMessage(userInput);
   };
-  useEffect(() => {
-    var userDisease = "";
-    var userHealthInfoToShow = "요리 레시피를 추천해줘.";
-    const getDisease = confirm("나의 질병 정보를 불러오시겠습니까?");
-    if (getDisease)
-      getUserDisease()
-        .then((disease) => {
-          if (disease) {
-            userDisease = `The recipe must suitable with my health status. This is my disease list in korean, '${disease}'. `;
-            userHealthInfoToShow = `나의 건강상태에 맞는 요리 레시피를 추천해줘. 나는 ${disease}이(가) 있어.`;
-          }
-          const userHealthInfo = `Recommend me the cuisine recipe that I ask you. ${userDisease}All of your response must be in korean.`;
-          const initialChatList = [
-            { role: "prompt", parts: [{ text: userHealthInfo }] },
-            { role: "promptToShow", parts: [{ text: userHealthInfoToShow }] },
-          ];
-          setChatList(initialChatList);
-          startChat(
-            initialChatList
-              .filter((chat) => chat.role != "promptToShow")
-              .map((chat) => {
-                if (chat.role == "prompt") {
-                  const newChat = { ...chat, role: "user" };
-                  return newChat;
-                } else return chat;
-              }),
-          );
-        })
-        .catch((err) => {
-          console.error(err);
-          console.log("Access Denied.");
-        });
-    else {
-      const userHealthInfo = `Recommend me the cuisine recipe that I ask you. ${userDisease}All of your response must be in korean.`;
-      const initialChatList = [
-        { role: "prompt", parts: [{ text: userHealthInfo }] },
-        { role: "promptToShow", parts: [{ text: userHealthInfoToShow }] },
-      ];
-      setChatList(initialChatList);
-      startChat(
-        initialChatList
-          .filter((chat) => chat.role != "promptToShow")
-          .map((chat) => {
-            if (chat.role == "prompt") {
-              const newChat = { ...chat, role: "user" };
-              return newChat;
-            } else return chat;
-          }),
-      );
-    }
-  }, []);
 
   return (
     <div className="chatbot-page" ref={pageRef}>
       <div className="chatbot-container">
-        <ChatList chatList={chatList} onProgress={onProgress} />
+        <ChatList />
         <div className="chat-input-area">
           <form onSubmit={handleSubmit}>
             <input
               placeholder="챗봇에게 보낼 메세지를 입력하세요."
               value={chatInput}
-              onChange={handleChange}
+              onChange={(e) => setChatInput(e.target.value)}
             ></input>
             <button type="submit">
               <img src={arrowBtn} alt="제출 버튼 화살표" />
             </button>
           </form>
         </div>
-        {showSaveModal && <SaveModal />}
+        {isSaveModalOpen && <SaveModal />}
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"; // useEffect를 사용하여 컴포넌트 마운트 시 토큰 확인
 import { useNavigate } from "react-router-dom"; // 사용자가 로그인하지 않은 경우 리다이렉트를 위해 사용
 import { changePassword } from "@/api/user";
-import { authStorage } from "@/common/authStorage";
+import { useBoundStore } from "@/stores";
 import "./LoginJoinChangePWPage.css"; // 스타일 시트 임포트
 
 // 비밀번호 변경 페이지 컴포넌트 정의
@@ -12,15 +12,16 @@ const ChangePasswordPage = () => {
   const [newPassword, setNewPassword] = useState(""); // 비밀번호 확인 상태 변수
   const [confirmNewPassword, setConfirmNewPassword] = useState(""); // 비밀번호 확인 상태 변수
   const navigate = useNavigate(); // 리다이렉트를 위해 useNavigate 훅 사용
+  const isLoggedIn = useBoundStore((state) => state.isLoggedIn);
 
   // 컴포넌트가 마운트될 때 토큰 확인
   useEffect(() => {
-    if (!authStorage.isLoggedIn()) {
+    if (!isLoggedIn) {
       // 토큰이 없으면 로그인 페이지로 리다이렉트
       alert("로그인이 필요합니다.");
       navigate("/login");
     }
-  }, [navigate]);
+  }, [isLoggedIn, navigate]);
 
   // 양식이 제출될 때 호출되는 함수
   const handleSubmit = async (event) => {
