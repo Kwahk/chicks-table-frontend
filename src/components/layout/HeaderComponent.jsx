@@ -52,15 +52,12 @@ const HeaderComponent = () => {
     navigate("/");
   };
 
+  // 레시피 검색은 사용자 정보가 필요 없어 로그인 없이 이용할 수 있다
   const handleSearchClick = () => {
-    if (!isLoggedIn) {
-      alert("로그인이 필요합니다.");
-      navigate("/login");
-    } else {
-      navigate("/recipesearch");
-    }
+    navigate("/recipesearch");
   };
 
+  // 챗봇은 질병 정보를 불러오고 답변을 저장하므로 로그인이 필요하다
   const handleChatbotClick = () => {
     if (!isLoggedIn) {
       alert("로그인이 필요합니다.");

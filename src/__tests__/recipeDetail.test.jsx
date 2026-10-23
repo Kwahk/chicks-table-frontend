@@ -1,12 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { screen } from "@testing-library/react";
-import { loginAsTestUser, renderApp } from "@/test/renderApp";
+import { renderApp } from "@/test/renderApp";
 import { requests } from "@/test/handlers";
 
-const openDetail = (name) => {
-  loginAsTestUser();
-  return renderApp(`/recipe/${encodeURIComponent(name)}`);
-};
+// 레시피 상세는 로그인 없이 볼 수 있다
+const openDetail = (name) => renderApp(`/recipe/${encodeURIComponent(name)}`);
 
 describe("레시피 상세", () => {
   it("재료와 영양 성분이 보인다", async () => {

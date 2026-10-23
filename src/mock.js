@@ -1,10 +1,9 @@
 import { AxiosError } from "axios";
 import { api } from "@/api/client";
 import { authStorage } from "@/common/authStorage";
-import { recipeApi } from "@/api/recipe";
-import { mockRecipeAdapter } from "./mockRecipes";
 
 // .env 에 VITE_USE_MOCK=true 이면 백엔드 없이 더미 데이터로 동작
+// 공공 레시피 API는 백엔드와 관계없어 mock 모드에서도 실제 API를 쓴다
 export const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
 
 const DB_KEY = "mock_db";
@@ -210,7 +209,6 @@ if (USE_MOCK) {
   // 로그인 없이 바로 쓸 수 있게 로그인 상태로 시작
   authStorage.save("mock-token", MOCK_USERNAME);
   api.defaults.adapter = mockAdapter;
-  recipeApi.defaults.adapter = mockRecipeAdapter;
   console.info(
     "[MOCK] mock 모드로 실행 중입니다. 백엔드 요청은 더미 데이터로 응답합니다.",
   );

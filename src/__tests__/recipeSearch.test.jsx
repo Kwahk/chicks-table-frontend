@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
-import { loginAsTestUser, renderApp } from "@/test/renderApp";
+import { renderApp } from "@/test/renderApp";
 import { server } from "@/test/server";
 
 const search = async (user, keyword) => {
@@ -13,7 +13,6 @@ const search = async (user, keyword) => {
 
 describe("레시피 검색", () => {
   it("검색어를 입력하고 Enter를 누르면 레시피 카드가 보인다", async () => {
-    loginAsTestUser();
     const { user } = renderApp("/recipesearch");
 
     await search(user, "두부");
@@ -23,7 +22,6 @@ describe("레시피 검색", () => {
   });
 
   it("검색 결과가 없으면 안내 문구가 보인다", async () => {
-    loginAsTestUser();
     const { user } = renderApp("/recipesearch");
 
     await search(user, "없는음식");
@@ -34,7 +32,6 @@ describe("레시피 검색", () => {
   });
 
   it("결과가 8개를 넘으면 페이지 버튼으로 다음 페이지를 볼 수 있다", async () => {
-    loginAsTestUser();
     const { user } = renderApp("/recipesearch");
 
     await search(user, "샐러드");
@@ -48,7 +45,6 @@ describe("레시피 검색", () => {
   });
 
   it("카드를 누르면 상세 페이지로 이동한다", async () => {
-    loginAsTestUser();
     const { user } = renderApp("/recipesearch");
 
     await search(user, "두부");
@@ -61,7 +57,6 @@ describe("레시피 검색", () => {
   });
 
   it("상세 페이지에서 뒤로 가도 검색 결과가 유지된다", async () => {
-    loginAsTestUser();
     const { user } = renderApp("/recipesearch");
 
     await search(user, "샐러드");
@@ -74,7 +69,6 @@ describe("레시피 검색", () => {
   });
 
   it("검색어와 페이지가 주소에 남아 새로고침해도 유지된다", async () => {
-    loginAsTestUser();
     renderApp("/recipesearch?q=샐러드&page=2");
 
     expect(await screen.findByText("채소 샐러드 9")).toBeInTheDocument();
@@ -92,7 +86,6 @@ describe("레시피 검색", () => {
         { once: true },
       ),
     );
-    loginAsTestUser();
     const { user } = renderApp("/recipesearch?q=두부");
 
     expect(
