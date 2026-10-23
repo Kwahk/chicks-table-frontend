@@ -2,8 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./RecipeSearchPage.css";
 import SearchIcon from "../../assets/grey-search-icon.png";
-
-const API_KEY = "9b31d1ae298a4fa49c49"; // API Key
+import { searchRecipes } from "@/api/recipe";
 
 const RecipeSearchPage = () => {
   const [searchInput, setSearchInput] = useState("");
@@ -16,25 +15,7 @@ const RecipeSearchPage = () => {
   // API 호출 함수
   const fetchRecipes = async () => {
     try {
-      const response = await fetch(
-        `http://openapi.foodsafetykorea.go.kr/api/${API_KEY}/COOKRCP01/xml/1/100/RCP_NM=${encodeURIComponent(searchInput)}`,
-      );
-      const xmlData = await response.text(); // XML 데이터를 텍스트로 받아옴
-
-      // XML 데이터를 파싱하는 함수
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(xmlData, "application/xml");
-
-      // XML에서 필요한 데이터 추출
-      const rows = xml.getElementsByTagName("row");
-      const recipesData = Array.from(rows).map((row) => ({
-        RCP_SEQ: row.getElementsByTagName("RCP_SEQ")[0].textContent,
-        RCP_NM: row.getElementsByTagName("RCP_NM")[0].textContent,
-        RCP_PAT2: row.getElementsByTagName("RCP_PAT2")[0].textContent,
-        ATT_FILE_NO_MAIN:
-          row.getElementsByTagName("ATT_FILE_NO_MAIN")[0]?.textContent,
-      }));
-
+      const recipesData = await searchRecipes(searchInput);
       setRecipes(recipesData);
       setIsTyping(false); // 검색 완료 시 입력 중 상태 해제
     } catch (error) {
@@ -74,7 +55,7 @@ const RecipeSearchPage = () => {
   // 레시피 카드 클릭 핸들러 (레시피 이름을 상세 페이지로 전달)
   const handleRecipeClick = (recipe) => {
     // 레시피 이름을 URL에 포함하여 상세 페이지로 이동
-    navigate(`/recipe/${encodeURIComponent(recipe.RCP_NM)}`);
+    navigate(`/recipe/${encodeURIComponent(recipe.name)}`);
   };
 
   return (
@@ -119,22 +100,22 @@ const RecipeSearchPage = () => {
           ) : currentRecipes.length > 0 ? (
             currentRecipes.map((recipe) => (
               <div
-                key={recipe.RCP_SEQ}
+                key={recipe.id}
                 className="recipe-card"
                 onClick={() => handleRecipeClick(recipe)}
               >
                 <div className="image-holder">
                   <img
-                    src={recipe.ATT_FILE_NO_MAIN || SearchIcon}
+                    src={recipe.thumbnail || SearchIcon}
                     alt="Recipe Img"
                     className="recipe-img"
                   />
                 </div>
                 <div className="recipe-info">
-                  <div className="recipe-name">{recipe.RCP_NM}</div>
+                  <div className="recipe-name">{recipe.name}</div>
                   <div className="recipe-category">
                     분류 &gt;{" "}
-                    <span className="category-bold">{recipe.RCP_PAT2}</span>
+                    <span className="category-bold">{recipe.category}</span>
                   </div>
                 </div>
               </div>
