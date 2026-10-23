@@ -1,15 +1,21 @@
-import { useContext, useEffect, useState } from "react";
-import { SaveContext } from "@/common/saveContext";
+import { useState } from "react";
+import { useShallow } from "zustand/react/shallow";
+import { useBoundStore } from "@/stores";
 
 import "./SaveModal.css";
 import cancel from "@/assets/images/cancel.svg";
 import { useCreateScrap } from "@/hooks/scrap";
 
 export default function SaveModal() {
-  const { setShowSaveModal, saveModalContent, setSaveModalContent } =
-    useContext(SaveContext);
+  const { content, closeSaveModal } = useBoundStore(
+    useShallow((state) => ({
+      content: state.saveModal.content,
+      closeSaveModal: state.closeSaveModal,
+    })),
+  );
+  // 제목, 내용 입력값은 이 모달 안에서만 쓰므로 지역 상태로 둔다
   const [titleInput, setTitleInput] = useState("");
-  const [contentInput, setContentInput] = useState(saveModalContent);
+  const [contentInput, setContentInput] = useState(content);
   const { mutate: saveScrap, isPending } = useCreateScrap();
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -18,23 +24,21 @@ export default function SaveModal() {
       {
         onSuccess: () => {
           alert("저장 성공!");
-          setShowSaveModal(false);
+          closeSaveModal();
         },
         onError: (err) => {
           console.error(err);
           alert("저장에 실패했습니다.");
         },
-        onSettled: () => setSaveModalContent(""),
       },
     );
   };
 
-  useEffect(() => {}, []);
   return (
     <div className="chat-save-modal-back">
       <div className="chat-save-modal">
         <div className="close btn-container">
-          <button onClick={() => setShowSaveModal(false)}>
+          <button onClick={closeSaveModal}>
             <img src={cancel} alt="취소 버튼" />
           </button>
         </div>
