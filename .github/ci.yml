@@ -1,0 +1,21 @@
+name: CI
+
+# PR을 올리거나 main에 합쳐질 때마다 lint, 테스트, 빌드를 자동으로 확인한다
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
